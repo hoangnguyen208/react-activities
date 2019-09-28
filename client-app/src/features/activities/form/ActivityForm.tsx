@@ -4,13 +4,14 @@ import { IActivity } from "../../../app/models/activity";
 import { v4 as uuid } from 'uuid';
 
 interface IProps {
-  setEditMode: (editMode: boolean) => void;
   activity: IActivity | null;
+  submitting: boolean;
   createActivity: (activity: IActivity) => void;
   editActivity: (activity: IActivity) => void;
+  setEditMode: (editMode: boolean) => void;
 }
 
-const ActivityForm: React.FC<IProps> = ({ setEditMode, activity: initialFormState, createActivity, editActivity }) => {
+const ActivityForm: React.FC<IProps> = ({ setEditMode, activity: initialFormState, createActivity, editActivity, submitting }) => {
   const initializeForm = () => {
     if (initialFormState) {
       return initialFormState;
@@ -55,7 +56,7 @@ const ActivityForm: React.FC<IProps> = ({ setEditMode, activity: initialFormStat
         <Form.Input onChange={handleInputChange} name='date' type="datetime-local" placeholder="Date" value={activity.date} />
         <Form.Input onChange={handleInputChange} name='city' placeholder="City" value={activity.city} />
         <Form.Input onChange={handleInputChange} name='venue' placeholder="Venue" value={activity.venue} />
-        <Button floated="right" positive type="submit" content="Submit" />
+        <Button loading={submitting} floated="right" positive type="submit" content="Submit" />
         <Button floated="right" type="button" content="Cancel" onClick={() => setEditMode(false)} />
       </Form>
     </Segment>
