@@ -1,34 +1,32 @@
-import { observable, action, computed, configure, runInAction } from 'mobx';
+import { observable, action, computed, configure, runInAction, decorate } from 'mobx';
 import { createContext, SyntheticEvent } from 'react';
 import { IActivity } from '../models/activity';
 import agent from '../api/agent';
 
+// enable strict mode of Mobx
 configure({enforceActions: 'always'});
 
 export class ActivityStore {
-    @observable activities: IActivity[] = [];
+    @observable activity: IActivity | null = null;
     @observable activityRegistry = new Map();
-    @observable editMode = false;
     @observable loadingInitial = false;
-    @observable selectedActivity: IActivity | undefined;
     @observable submitting = false;
     @observable target = '';
 
     @action cancelSelectedActivity = () => {
-      this.selectedActivity = undefined;
+      this.activity = null;
+    };
+
+    @action clearActivity = () => {
+      this.activity = null;
     }
 
-    @action cancelFormOpen = () => {
-      this.editMode = false;
-    }
-
-    @action createActivity = async (activity: IActivity) => {
+    @action createActivity  = async (activity: IActivity) => {
       this.submitting = true;
       try {
         await agent.Activities.create(activity);
         runInAction('creating activity', () => {
           this.activityRegistry.set(activity.id, activity);
-          this.editMode = false;
           this.submitting = false;
         });
       } catch (error) {
@@ -56,7 +54,7 @@ export class ActivityStore {
         });
         console.log(error);
       }
-    }
+    };
 
     @action editActivity = async (activity: IActivity) => {
       this.submitting = true;
@@ -64,8 +62,7 @@ export class ActivityStore {
         await agent.Activities.update(activity);
         runInAction('edit activity', () => {
           this.activityRegistry.set(activity.id, activity);
-          this.selectedActivity = activity;
-          this.editMode = false;
+          this.activity = activity;
           this.submitting = false;
         });
       } catch (error) {
@@ -74,7 +71,7 @@ export class ActivityStore {
           this.submitting = false;
         });
       }
-    }
+    };
 
     @action loadActivities = async () => {
         this.loadingInitial = true;
@@ -106,24 +103,55 @@ export class ActivityStore {
         //   .finally(() => this.loadingInitial = false);
     };
 
-    @action openCreateForm = () => {
-      this.editMode = true;
-      this.selectedActivity = undefined;
+    @action loadActivity = async (id: string) => {
+      let activity = this.getActivity(id);
+      if (activity) {
+        this.activity = activity;
+      } else {
+        this.loadingInitial = true;
+        try {
+          activity = await agent.Activities.details(id);
+          runInAction('getting activity', () => {
+            this.activity = activity;
+            this.loadingInitial = false;
+          });
+        } catch (error) {
+          console.log(error);
+          runInAction('get activity error', () => {
+            this.loadingInitial = false;
+          });
+        }
+      }
     };
 
-    @action openEditForm = (id: string) => {
-      this.selectedActivity = this.activityRegistry.get(id);
-      this.editMode = true;
+    getActivity = (id: string) => {
+      return this.activityRegistry.get(id);
     }
-
-    @action selectActivity = (id: string) => {
-        this.selectedActivity = this.activityRegistry.get(id);
-        this.editMode = false;
-    };
 
     @computed get activitiesByDate() {
       return Array.from(this.activityRegistry.values()).sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
-    }
+    };
 }
+
+// If don't wanna use decorators
+// decorate(ActivityStore, {
+//   activities: observable,
+//   activityRegistry: observable,
+//   editMode: observable,
+//   loadingInitial: observable,
+//   selectedActivity: observable,
+//   submitting: observable,
+//   target: observable,
+//   cancelSelectedActivity: action,
+//   cancelFormOpen: action,
+//   createActivity: action,
+//   deleteActivity: action,
+//   editActivity: action,
+//   loadActivities: action,
+//   openCreateForm: action,
+//   openEditForm: action,
+//   selectActivity: action,
+//   activitiesByDate: computed
+// });
 
 export default createContext(new ActivityStore());
