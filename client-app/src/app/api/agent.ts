@@ -2,9 +2,22 @@ import { IActivity } from './../models/activity';
 import axios, { AxiosResponse } from 'axios';
 import { history } from '../..';
 import { toast } from 'react-toastify';
+import { IUser, IUserFormValues } from '../models/user';
 
-axios.defaults.baseURL = 'http://localhost:5000/api';
+axios.defaults.baseURL = 'http://localhost:5000/api/';
 
+// automatically add jwt token to authorized endpoints
+axios.interceptors.request.use((config) => {
+    const token = window.localStorage.getItem('jwt');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
+// http error response interceptor
 axios.interceptors.response.use(undefined, error => {
     if (error.message === 'Network Error' && !error.response) {
         toast.error('Network error - make sure API is running!');
@@ -16,29 +29,43 @@ axios.interceptors.response.use(undefined, error => {
     if (status === 500) {
         toast.error('Server error - check the terminal for more info!');
     }
-    throw error;
+    throw error.response;
 });
 
 const responseBody = (response: AxiosResponse) => response.data;
 
-const sleep = (ms: number) => (response: AxiosResponse) => 
+const delay = (ms: number) => (response: AxiosResponse) => 
     new Promise<AxiosResponse>(resolve => setTimeout(() => resolve(response), ms));
 
+const delayDuration = 500;
+
 const requests = {
-    get: (url: string) => axios.get(url).then(sleep(1000)).then(responseBody),
-    post: (url: string, body: {}) => axios.post(url, body).then(sleep(1000)).then(responseBody),
-    put: (url: string, body: {}) => axios.put(url, body).then(sleep(1000)).then(responseBody),
-    delete: (url: string) => axios.delete(url).then(sleep(1000)).then(responseBody)
+    get: (url: string) => axios.get(url).then(delay(delayDuration)).then(responseBody),
+    post: (url: string, body: {}) => axios.post(url, body).then(delay(delayDuration)).then(responseBody),
+    put: (url: string, body: {}) => axios.put(url, body).then(delay(delayDuration)).then(responseBody),
+    delete: (url: string) => axios.delete(url).then(delay(delayDuration)).then(responseBody)
 };
 
 const Activities = {
-    list: (): Promise<IActivity[]> => requests.get('/activities'),
-    details: (id: string) => requests.get(`/activities/${id}`),
-    create: (activity: IActivity) => requests.post('/activities', activity),
-    update: (activity: IActivity) => requests.put(`/activities/${activity.id}`, activity),
-    delete: (id: string) => requests.delete(`/activities/${id}`)
+    list: (): Promise<IActivity[]> => requests.get('activities'),
+    details: (id: string) => requests.get(`activities/${id}`),
+    create: (activity: IActivity) => requests.post('activities', activity),
+    update: (activity: IActivity) => requests.put(`activities/${activity.id}`, activity),
+    delete: (id: string) => requests.delete(`activities/${id}`)
 };
 
+const Auth = {
+    login: (user: IUserFormValues): Promise<IUser> => requests.post('auth/login', user),
+    register: (user: IUserFormValues): Promise<IUser> => requests.post('auth/register', user)
+};
+
+const User = {
+    current: (): Promise<IUser> => requests.get('user')
+};
+
+
 export default {
-    Activities
+    Activities,
+    Auth,
+    User
 }

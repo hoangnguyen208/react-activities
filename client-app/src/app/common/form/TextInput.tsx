@@ -8,7 +8,7 @@ const TextInput: React.FC<IProps> = ({input, width, type, placeholder, meta: {to
     return (
         // !! operator below means 'error !== null ? true : false' 
         <Form.Field error={touched && !!error} type={type} width={width}>
-            <input {...input} placeholder={placeholder} type='text' />
+            <input {...input} placeholder={placeholder} />
             {touched && error && (
                 <Label basic color='red'>{error}</Label>
             )}
