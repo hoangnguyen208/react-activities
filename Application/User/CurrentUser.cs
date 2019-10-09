@@ -13,7 +13,6 @@ namespace Application.User
         public class Query : IRequest<User> { }
         public class Handler : IRequestHandler<Query, User>
         {
-            private readonly DataContext _context;
             private readonly UserManager<AppUser> _userManager;
             private readonly IJwtGenerator _jwtGenerator;
             private readonly IUserAccessor _userAccessor;

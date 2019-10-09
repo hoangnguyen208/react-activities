@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace Domain
+namespace Application.DTO
 {
-    public class Activity
+    public class ActivityDTO
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
@@ -12,8 +13,8 @@ namespace Domain
         public DateTime Date { get; set; }
         public string City { get; set; }
         public string Venue { get; set; }
-        
-        // add virtual in navigation property for lazy loading
-        public virtual ICollection<UserActivity> UserActivities { get; set; }
+
+        [JsonProperty("attendees")]
+        public ICollection<AttendeeDTO> UserActivities { get; set; }
     }
 }

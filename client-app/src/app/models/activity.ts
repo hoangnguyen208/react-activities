@@ -1,3 +1,5 @@
+import { IAttendee } from './attendee';
+
 export interface IActivity {
     id: string;
     title: string;
@@ -6,6 +8,7 @@ export interface IActivity {
     date: Date;
     city: string;
     venue: string;
+    attendees: IAttendee[];
 }
 
 export interface IActivityFormValues extends Partial<IActivity> { // Partial makes all extend of IActivity properties become optional in IActivityFormValues
