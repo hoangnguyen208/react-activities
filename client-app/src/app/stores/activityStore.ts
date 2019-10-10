@@ -5,6 +5,7 @@ import agent from '../api/agent';
 import { history } from '../../index';
 import { toast } from 'react-toastify';
 import { RootStore } from './rootStore';
+import { setActivityProps, createAttendee } from '../common/util/util';
 
 export default class ActivityStore {
     rootStore: RootStore;
@@ -18,6 +19,23 @@ export default class ActivityStore {
     @observable loadingInitial = false;
     @observable submitting = false;
     @observable target = '';
+
+    @action attendActivity = () => {
+      const attendee = createAttendee(this.rootStore.authStore.user!);
+      if (this.activity) {
+        this.activity.attendees.push(attendee);
+        this.activity.isGoing = true;
+        this.activityRegistry.set(this.activity.id, this.activity);
+      }
+    }
+
+    @action cancelAttendance = () => {
+      if (this.activity) {
+        this.activity.attendees = this.activity.attendees.filter(a => a.username !== this.rootStore.authStore.user!.username);
+        this.activity.isGoing = false;
+        this.activityRegistry.set(this.activity.id, this.activity);
+      }
+    }
 
     @action cancelSelectedActivity = () => {
       this.activity = null;
@@ -84,12 +102,11 @@ export default class ActivityStore {
     };
 
     @action loadActivities = async () => {
-        this.loadingInitial = true;
         try {
           const activities = await agent.Activities.list();
           runInAction('loading activities', () => {
             activities.forEach(activity => {
-              activity.date = new Date(activity.date);
+              setActivityProps(activity, this.rootStore.authStore.user!);
               this.activityRegistry.set(activity.id, activity);
             });
             this.loadingInitial = false;
@@ -123,7 +140,7 @@ export default class ActivityStore {
         try {
           activity = await agent.Activities.details(id);
           runInAction('getting activity', () => {
-            activity.date = new Date(activity.date);
+            setActivityProps(activity, this.rootStore.authStore.user!);
             this.activity = activity;
             this.activityRegistry.set(activity.id, activity);
             this.loadingInitial = false;

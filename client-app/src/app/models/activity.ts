@@ -9,6 +9,8 @@ export interface IActivity {
     city: string;
     venue: string;
     attendees: IAttendee[];
+    isGoing: boolean;
+    isHost: boolean;
 }
 
 export interface IActivityFormValues extends Partial<IActivity> { // Partial makes all extend of IActivity properties become optional in IActivityFormValues
