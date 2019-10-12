@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.DTO;
 using Application.Errors;
 using Application.Interfaces;
 using Application.Validators;
@@ -17,7 +18,7 @@ namespace Application.User
 {
     public class Register
     {
-        public class Command : IRequest<User>
+        public class Command : IRequest<UserDTO>
         {
             public string DisplayName { get; set; }
             public string UserName { get; set; }
@@ -36,7 +37,7 @@ namespace Application.User
             }
         }
 
-        public class Handler : IRequestHandler<Command, User>
+        public class Handler : IRequestHandler<Command, UserDTO>
         {
             private readonly DataContext _context;
             private readonly UserManager<AppUser> _userManager;
@@ -48,7 +49,7 @@ namespace Application.User
                 _context = context;
             }
 
-            public async Task<User> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<UserDTO> Handle(Command request, CancellationToken cancellationToken)
             {
                 if (await _context.Users.Where(x => x.Email == request.Email).AnyAsync()) 
                 {
@@ -71,7 +72,7 @@ namespace Application.User
 
                 if (result.Succeeded)
                 {
-                    return new User
+                    return new UserDTO
                     {
                         DisplayName = user.DisplayName,
                         Token = _jwtGenerator.CreateToken(user),
