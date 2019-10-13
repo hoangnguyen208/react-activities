@@ -1,8 +1,11 @@
+import { IPhoto } from "./photo";
+
 export interface IUser {
     username: string;
     displayName: string;
     token: string;
     image?: string;
+    email: string;
 }
 
 export interface IAuthFormValues {
@@ -10,4 +13,12 @@ export interface IAuthFormValues {
     password: string;
     displayName?: string;
     username?: string;
+}
+
+export interface IProfile {
+    displayName: string,
+    username: string,
+    bio: string,
+    image: string,
+    photos: IPhoto[]
 }

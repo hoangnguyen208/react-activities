@@ -1,3 +1,4 @@
+import { IProfile } from '../models/user';
 import { IActivity } from './../models/activity';
 import axios, { AxiosResponse } from 'axios';
 import { history } from '../..';
@@ -62,7 +63,8 @@ const Auth = {
 };
 
 const User = {
-    current: (): Promise<IUser> => requests.get('user')
+    current: (): Promise<IUser> => requests.get('user'),
+    profile: (email: string): Promise<IProfile> => requests.get(`user/${email}`)
 };
 
 
