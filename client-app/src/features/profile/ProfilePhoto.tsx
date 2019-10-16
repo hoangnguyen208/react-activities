@@ -6,9 +6,11 @@ import { observer } from "mobx-react-lite";
 
 const ProfilePhoto = () => {
   const rootStore = useContext(RootStoreContext);
-  const { profile, isCurrentUser, uploadPhoto, uploadingPhoto, setMainPhoto, loading } = rootStore.userStore;
+  const { profile, isCurrentUser } = rootStore.userStore;
+  const { uploadingPhoto, uploadPhoto, loadingDeletePhoto, deletePhoto, loadingSetMain, setMainPhoto } = rootStore.photoStore;
   const [addPhotoMode, setAddPhotoMode] = useState(false);
   const [target, setTarget] = useState<string | undefined>(undefined);
+  const [deleteTarget, setDeleteTarget] = useState<string | undefined>(undefined);
 
   const handleUploadImage = (photo: Blob) => {
     uploadPhoto(photo).then(() => setAddPhotoMode(false));
@@ -45,13 +47,24 @@ const ProfilePhoto = () => {
                             setMainPhoto(photo);
                             setTarget(e.currentTarget.name);
                           }} 
-                          disabled={photo.isMain}
-                          loading={loading && target === photo.id} 
+                          disabled={photo.isMain || loadingSetMain || (loadingDeletePhoto && deleteTarget === photo.id)}
+                          loading={loadingSetMain && target === photo.id} 
                           basic 
                           positive 
                           content="Main"
                         />
-                        <Button basic negative icon="trash" />
+                        <Button 
+                          name={photo.id} 
+                          disabled={photo.isMain || loadingDeletePhoto || (loadingSetMain && target === photo.id)} 
+                          onClick={(e) => {
+                            deletePhoto(photo);
+                            setDeleteTarget(e.currentTarget.name);
+                          }} 
+                          loading={loadingDeletePhoto && deleteTarget === photo.id}
+                          basic 
+                          negative 
+                          icon="trash"
+                        />
                       </Button.Group>
                     )}
                   </Card>

@@ -70,17 +70,22 @@ const Auth = {
     register: (user: IAuthFormValues): Promise<IUser> => requests.post('auth/register', user)
 };
 
-const User = {
-    current: (): Promise<IUser> => requests.get('user'),
-    profile: (email: string): Promise<IProfile> => requests.get(`user/${email}`),
+const Photo = {
     uploadPhoto: (photo: Blob): Promise<IPhoto> => requests.postForm(`photo`, photo),
     setMainPhoto: (id: string) => requests.post(`photo/${id}/setMain`, {}),
     deletePhoto: (id: string) => requests.delete(`photo/${id}`)
+}
+
+const User = {
+    current: (): Promise<IUser> => requests.get('user'),
+    profile: (email: string): Promise<IProfile> => requests.get(`user/${email}`),
+    updateProfile: (profile: Partial<IProfile>) => requests.put(`user`, profile)
 };
 
 
 export default {
     Activities,
     Auth,
-    User
+    User,
+    Photo
 }
