@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Application.DTO;
 using Application.User;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -17,6 +18,11 @@ namespace API.Controllers
         public async Task<ActionResult<UserDTO>> Details(string username)
         {
             return await Mediator.Send(new Details.Query{Username = username});
+        }
+        [HttpPut]
+        public async Task<ActionResult<Unit>> Edit(Edit.Command command)
+        {
+            return await Mediator.Send(command);
         }
     }
 }
