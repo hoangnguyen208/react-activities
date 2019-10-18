@@ -15,5 +15,6 @@ namespace Domain
         
         // add virtual in navigation property for lazy loading (no need method 'includes' in EF core)
         public virtual ICollection<UserActivity> UserActivities { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }

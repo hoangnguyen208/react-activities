@@ -17,6 +17,7 @@ export interface IAuthFormValues {
 
 export interface IProfile {
     displayName: string,
+    email: string,
     username: string,
     bio: string,
     image: string,

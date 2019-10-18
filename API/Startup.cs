@@ -1,5 +1,7 @@
 ﻿using System.Text;
+using System.Threading.Tasks;
 using API.Middleware;
+using API.SignalR;
 using Application.Activities;
 using Application.Interfaces;
 using AutoMapper;
@@ -51,6 +53,8 @@ namespace API
 
             services.AddAutoMapper(typeof(List.Handler));
 
+            services.AddSignalR();
+
             services.AddMvc(opt => {
                 // add global Authorize required to all endpoints
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
@@ -86,6 +90,21 @@ namespace API
                         ValidateAudience = false,
                         ValidateIssuer = false
                     };
+                    opt.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context => 
+                        {
+                            // the string "access_token" must be exact as it is because 
+                            // this is how client send query "access_token" to
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chat")))
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
             services.AddScoped<IJwtGenerator, JwtGenerator>();
@@ -114,6 +133,7 @@ namespace API
             // app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseCors("CorsPolicy");
+            app.UseSignalR(routes => { routes.MapHub<ChatHub>("/chat");});
             app.UseMvc();
         }
     }

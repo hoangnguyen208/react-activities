@@ -1,4 +1,5 @@
 import { IAttendee } from './attendee';
+import { IComment } from './comment';
 
 export interface IActivity {
     id: string;
@@ -11,6 +12,7 @@ export interface IActivity {
     attendees: IAttendee[];
     isGoing: boolean;
     isHost: boolean;
+    comments: IComment[];
 }
 
 export interface IActivityFormValues extends Partial<IActivity> { // Partial makes all extend of IActivity properties become optional in IActivityFormValues
