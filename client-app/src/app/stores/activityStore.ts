@@ -23,6 +23,16 @@ export default class ActivityStore {
   @observable loading = false;
   @observable.ref hubConnection: HubConnection | null = null;
 
+  @action addComment = async (values: any) => {
+    values.activityId = this.activity!.id;
+    try {
+      // invoke the method SendComment in ChatHub.cs
+      await this.hubConnection!.invoke("SendComment", values)
+    } catch (error) {
+      console.log(error);
+    }
+  }  
+
   @action attendActivity = async () => {
     const attendee = createAttendee(this.rootStore.authStore.user!);
     this.loading = true;
@@ -83,6 +93,7 @@ export default class ActivityStore {
       let attendees = [];
       attendees.push(attendee);
       activity.attendees = attendees;
+      activity.comments = [];
       activity.isHost = true;
       runInAction("creating activity", () => {
         this.activityRegistry.set(activity.id, activity);
@@ -112,7 +123,9 @@ export default class ActivityStore {
       .catch(error => console.log("Error establishing connection: ", error));
 
     this.hubConnection.on("ReceiveComment", comment => {
-      this.activity!.comments.push(comment);
+      runInAction(() => {
+        this.activity!.comments.push(comment);
+      })
     })
   };
 

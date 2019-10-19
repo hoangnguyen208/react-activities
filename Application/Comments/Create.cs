@@ -20,7 +20,7 @@ namespace Application.Comments
         {
             public string Body { get; set; }
             public Guid ActivityId { get; set; }
-            public string Username { get; set; }
+            public string Email { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
@@ -29,7 +29,7 @@ namespace Application.Comments
             {
                 RuleFor(x => x.Body).NotEmpty();
                 RuleFor(x => x.ActivityId).NotEmpty();
-                RuleFor(x => x.Username).NotEmpty();
+                RuleFor(x => x.Email).NotEmpty();
             }
         }
 
@@ -51,9 +51,7 @@ namespace Application.Comments
                     throw new RestException(HttpStatusCode.NotFound, new { Activity = "Not found" });
                 }
 
-                _context.Activities.Add(activity);
-
-                var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == request.Username);
+                var user = await _context.Users.SingleOrDefaultAsync(x => x.Email == request.Email);
 
                 var comment = new Comment
                 {

@@ -16,10 +16,13 @@ export interface IAuthFormValues {
 }
 
 export interface IProfile {
-    displayName: string,
-    email: string,
-    username: string,
-    bio: string,
-    image: string,
-    photos: IPhoto[]
+    displayName: string;
+    email: string;
+    username: string;
+    bio: string;
+    image: string;
+    photos: IPhoto[];
+    following: boolean;
+    followersCount: number;
+    followingCount: number;
 }

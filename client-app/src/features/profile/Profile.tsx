@@ -1,36 +1,51 @@
-import React, { useContext, useEffect } from 'react'
-import { Grid } from 'semantic-ui-react';
-import ProfileHeader from './ProfileHeader';
-import ProfileContent from './ProfileContent';
-import { RootStoreContext } from '../../app/stores/rootStore';
-import { observer } from 'mobx-react-lite';
-import LoadingComponent from '../../app/layout/LoadingComponent';
-import { RouteComponentProps } from 'react-router';
+import React, { useContext, useEffect } from "react";
+import { Grid } from "semantic-ui-react";
+import ProfileHeader from "./ProfileHeader";
+import ProfileContent from "./ProfileContent";
+import { RootStoreContext } from "../../app/stores/rootStore";
+import { observer } from "mobx-react-lite";
+import LoadingComponent from "../../app/layout/LoadingComponent";
+import { RouteComponentProps } from "react-router";
 
 interface RouteParams {
-    username: string
+  username: string;
 }
 
 interface IProps extends RouteComponentProps<RouteParams> {}
 
-const Profile: React.FC<IProps> = ({match}) => {
-    const rootStore = useContext(RootStoreContext);
-    const {loadingProfile, profile, loadProfile} = rootStore.userStore;
+const Profile: React.FC<IProps> = ({ match }) => {
+  const rootStore = useContext(RootStoreContext);
+  const {
+    loadingProfile,
+    profile,
+    loadProfile,
+    follow,
+    unfollow,
+    isCurrentUser,
+    loading,
+    setActiveTab
+  } = rootStore.userStore;
 
-    useEffect(() => {
-        loadProfile(match.params.username)
-    }, [loadProfile, match])
+  useEffect(() => {
+    loadProfile(match.params.username);
+  }, [loadProfile, match]);
 
-    if (loadingProfile) return <LoadingComponent content='Loading...' />;
+  if (loadingProfile) return <LoadingComponent content="Loading..." />;
 
-    return (
-        <Grid>
-            <Grid.Column width={16}>
-                <ProfileHeader profile={profile!} />
-                <ProfileContent />
-            </Grid.Column>
-        </Grid>
-    )
-}
+  return (
+    <Grid>
+      <Grid.Column width={16}>
+        <ProfileHeader
+          profile={profile!}
+          isCurrentUser={isCurrentUser}
+          loading={loading}
+          follow={follow}
+          unfollow={unfollow}
+        />
+        <ProfileContent setActiveTab={setActiveTab} />
+      </Grid.Column>
+    </Grid>
+  );
+};
 
-export default observer(Profile)
+export default observer(Profile);

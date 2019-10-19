@@ -1,4 +1,5 @@
 using System.Linq;
+using Application.Activities;
 using Application.DTO;
 using AutoMapper;
 using Domain;
@@ -15,7 +16,8 @@ namespace Application.Mapping
                 .ForMember(des => des.Username, opt => opt.MapFrom(src => src.AppUser.UserName))
                 .ForMember(des => des.DisplayName, opt => opt.MapFrom(src => src.AppUser.DisplayName))
                 .ForMember(des => des.Email, opt => opt.MapFrom(src => src.AppUser.Email))
-                .ForMember(des => des.Image, opt => opt.MapFrom(src => src.AppUser.Photos.FirstOrDefault(x => x.IsMain).Url));
+                .ForMember(des => des.Image, opt => opt.MapFrom(src => src.AppUser.Photos.FirstOrDefault(x => x.IsMain).Url))
+                .ForMember(des => des.Following, opt => opt.MapFrom<FollowingResolver>());
             
             CreateMap<Comment, CommentDTO>()
                 .ForMember(des => des.Username, opt => opt.MapFrom(src => src.Author.UserName))

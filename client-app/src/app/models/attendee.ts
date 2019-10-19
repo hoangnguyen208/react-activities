@@ -4,4 +4,5 @@ export interface IAttendee {
     email: string;
     image: string;
     isHost: boolean;
+    following?: boolean;
 }

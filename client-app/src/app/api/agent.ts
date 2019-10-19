@@ -79,7 +79,10 @@ const Photo = {
 const User = {
     current: (): Promise<IUser> => requests.get('user'),
     profile: (email: string): Promise<IProfile> => requests.get(`user/${email}`),
-    updateProfile: (profile: Partial<IProfile>) => requests.put(`user`, profile)
+    updateProfile: (profile: Partial<IProfile>) => requests.put(`user`, profile),
+    follow: (email: string) => requests.post(`profile/${email}/follow`, {}),
+    unfollow: (email: string) => requests.delete(`profile/${email}/follow`),
+    listFollowings: (username: string, predicate: string) => requests.get(`profile/${username}/follow?predicate=${predicate}`)
 };
 
 
