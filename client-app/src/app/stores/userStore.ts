@@ -1,4 +1,4 @@
-import { IProfile } from './../models/user';
+import { IProfile, IUserActivity } from './../models/user';
 import { RootStore } from './rootStore';
 import { observable, action, runInAction, computed, reaction } from 'mobx';
 import agent from '../api/agent';
@@ -27,7 +27,9 @@ export default class UserStore {
     @observable loadingProfile = true;
     @observable loading = false;
     @observable followings: IProfile[] = [];
-    @observable activeTab: number = 0;    
+    @observable activeTab: number = 0;
+    @observable userActivities: IUserActivity[] = [];    
+    @observable loadingActivities = false;
 
     @action follow = async (email: string) => {
       this.loading = true;
@@ -77,6 +79,23 @@ export default class UserStore {
           this.loadingProfile = false;
         });
         console.log(error);
+      }
+    }
+
+    @action loadUserActivities = async (username: string, predicate?: string) => {
+      this.loadingActivities = true;
+      try {
+        const activities = await agent.User.listActivities(username, predicate!);
+        runInAction(() => {
+          this.userActivities = activities;
+          this.loadingActivities = false;
+        });
+      } catch (error) {
+        console.log(error);
+        toast.error('Problem loading activities');
+        runInAction(() => {
+          this.loadingActivities = false;
+        });
       }
     }
 
