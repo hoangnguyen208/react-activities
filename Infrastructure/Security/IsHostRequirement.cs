@@ -28,7 +28,7 @@ namespace Infrastructure.Security
         {
             if (context.Resource is AuthorizationFilterContext authContext)
             {
-                var currentUsername = _httpContextAccessor.HttpContext.User?.Claims?.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                var currentUserEmail = _httpContextAccessor.HttpContext.User?.Claims?.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
                 var activityId = Guid.Parse(authContext.RouteData.Values["id"].ToString());
 
@@ -36,7 +36,7 @@ namespace Infrastructure.Security
 
                 var host = activity.UserActivities.FirstOrDefault(x => x.IsHost);
 
-                if (host?.AppUser?.UserName == currentUsername)
+                if (host?.AppUser?.Email == currentUserEmail)
                 {
                     context.Succeed(requirement);
                 }
