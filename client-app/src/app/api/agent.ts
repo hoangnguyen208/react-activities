@@ -6,7 +6,8 @@ import { toast } from 'react-toastify';
 import { IUser, IAuthFormValues } from '../models/user';
 import { IPhoto } from '../models/photo';
 
-axios.defaults.baseURL = 'http://localhost:5000/api/';
+// axios.defaults.baseURL = 'http://localhost:5000/api/';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 // automatically add jwt token to authorized endpoints
 axios.interceptors.request.use((config) => {
@@ -42,16 +43,11 @@ axios.interceptors.response.use(undefined, error => {
 
 const responseBody = (response: AxiosResponse) => response.data;
 
-const delay = (ms: number) => (response: AxiosResponse) => 
-    new Promise<AxiosResponse>(resolve => setTimeout(() => resolve(response), ms));
-
-const delayDuration = 500;
-
 const requests = {
-    get: (url: string) => axios.get(url).then(delay(delayDuration)).then(responseBody),
-    post: (url: string, body: {}) => axios.post(url, body).then(delay(delayDuration)).then(responseBody),
-    put: (url: string, body: {}) => axios.put(url, body).then(delay(delayDuration)).then(responseBody),
-    delete: (url: string) => axios.delete(url).then(delay(delayDuration)).then(responseBody),
+    get: (url: string) => axios.get(url).then(responseBody),
+    post: (url: string, body: {}) => axios.post(url, body).then(responseBody),
+    put: (url: string, body: {}) => axios.put(url, body).then(responseBody),
+    delete: (url: string) => axios.delete(url).then(responseBody),
     postForm: (url: string, file: Blob) => {
         let formData = new FormData();
         formData.append('File', file);
@@ -62,7 +58,7 @@ const requests = {
 };
 
 const Activities = {
-    list: (params: URLSearchParams): Promise<IActivitiesEnvelope> => axios.get('activities', {params: params}).then(delay(delayDuration)).then((responseBody)),
+    list: (params: URLSearchParams): Promise<IActivitiesEnvelope> => axios.get('activities', {params: params}).then((responseBody)),
     details: (id: string) => requests.get(`activities/${id}`),
     create: (activity: IActivity) => requests.post('activities', activity),
     update: (activity: IActivity) => requests.put(`activities/${activity.id}`, activity),
